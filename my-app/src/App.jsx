@@ -23,14 +23,16 @@ function App() {
   // Добавляем сервис
   const handleAddService = async () => {
     const name = prompt('Введите название сервиса:');
-    const port = prompt('Введите порт сервиса:');
-    if (!name || !port) return alert('Заполните все поля');
+    const portInput = prompt('Введите порт сервиса:');
+    const address = prompt('Ввведите адрес:')
+    if (!name || !portInput || !address) return alert('Заполните все поля');
 
     try {
-      const response = await fetch('/add-service', {
+      const port = parseInt(portInput, 10)
+      const response = await fetch('http://localhost:8080/add-service', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, port }),
+        body: JSON.stringify({ name, port, address }),
       });
       if (!response.ok) throw new Error('Ошибка при добавлении');
       alert('Сервис добавлен');
@@ -42,16 +44,19 @@ function App() {
 
   // Обновляем сервис
   const handleUpdateService = async () => {
-    const id = prompt('Введите ID сервиса:');
+    const idInput = prompt('Введите id:')
     const name = prompt('Введите новое название:');
-    const port = prompt('Введите новый порт:');
-    if (!id || !name || !port) return alert('Заполните все поля');
+    const portInput = prompt('Введите новый порт:');
+    const address = prompt("Введите новый адрес")
+    if (!name || !portInput || !address) return alert('Заполните все поля');
 
     try {
-      const response = await fetch('/update-service', {
+      const id = parseInt(idInput, 10)
+      const port = parseInt(portInput, 10)
+      const response = await fetch('http://localhost:8080/update-service', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, name, port }),
+        body: JSON.stringify({ id, name, port, address }),
       });
       if (!response.ok) throw new Error('Ошибка обновления');
       alert('Сервис обновлён');
@@ -63,14 +68,17 @@ function App() {
 
   // Удаляем сервис
   const handleDeleteService = async () => {
-    const id = prompt('Введите ID сервиса:');
-    if (!id) return alert('Введите ID');
+    const idInput = prompt('Введите ID сервиса:');
+    if (!idInput) return alert('Введите ID');
+
+    const id = parseInt(idInput, 10)
 
     try {
-      const response = await fetch('/delete-service', {
+      const url = new URL("http://localhost:8080/delete-service")
+      url.searchParams.append("id", id)
+
+      const response = await fetch(url, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
       });
       if (!response.ok) throw new Error('Ошибка удаления');
       alert('Сервис удалён');
@@ -89,8 +97,9 @@ function App() {
           services.map((service) => (
             <div className="service-item" key={service.id}>
               <strong>ID:</strong> {service.id} <br />
-              <strong>Name:</strong> {service.Name} <br />
-              <strong>Port:</strong> {service.Port}
+              <strong>Name:</strong> {service.name} <br />
+              <strong>Port:</strong> {service.port} <br />
+              <strong>Address:</strong> {service.address} <br />
             </div>
           ))
         ) : (
