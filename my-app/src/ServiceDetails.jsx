@@ -9,7 +9,6 @@ function ServiceDetails() {
 
   const fetchServiceById = async () => {
     try {
-      // Предполагается эндпоинт GET /service/:id на бэкенде
       const response = await fetch(`http://localhost:8080/service/${id}`)
       if (!response.ok) throw new Error('Ошибка загрузки сервиса')
       const data = await response.json()
@@ -54,7 +53,6 @@ function ServiceDetails() {
         <Typography variant="body1">
           <strong>Address:</strong> {service.address}
         </Typography>
-        {/* Если есть дополнительные поля, отобразите их здесь */}
       </Paper>
 
       <Box sx={{ textAlign: 'center', mt: 3 }}>
