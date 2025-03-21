@@ -65,7 +65,16 @@ function ServiceDetails() {
 
       {/* Кнопка Healthcheck */}
       <Box sx={{ textAlign: 'center', mt: 3 }}>
-        <Button variant="contained" onClick={handleHealthcheck}>
+        <Button
+          variant="contained"
+          onClick={handleHealthcheck}
+          sx={{
+            backgroundColor: '#17a2b8',
+            ':hover': {
+              backgroundColor: '#138496' // более тёмный оттенок для hover
+            }
+          }}
+        >
           Healthcheck
         </Button>
       </Box>
@@ -85,7 +94,17 @@ function ServiceDetails() {
 
       {/* Кнопка "Назад" */}
       <Box sx={{ position: 'absolute', top: 80, left: 260 }}>
-        <Button variant="contained" onClick={() => navigate(-1)}>
+        <Button
+          variant="contained"
+          onClick={() => navigate(-1)}
+          sx={{
+            backgroundColor: '#6c757d',
+            ':hover': {
+              backgroundColor: '#5a6268'
+            },
+            color: '#fff'
+          }}
+        >
           Назад
         </Button>
       </Box>
