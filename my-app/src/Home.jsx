@@ -139,11 +139,12 @@ function Home() {
                   <TableRow
                     key={service.id}
                     hover
-                    // При наведении будет эффект подсветки (hover включен по default в MUI, но можно усилить стилями)
                     sx={{
                       cursor: 'pointer',
+                      transition: 'background-color 0.2s, border 0.2s',
                       '&:hover': {
-                        backgroundColor: '#2a2a2a' // немного светлее при hover
+                        backgroundColor: '#2a2a2a',
+                        border: '1px solid #646cff'
                       }
                     }}
                     onClick={() => handleRowClick(service.id)}
