@@ -11,7 +11,7 @@ function ServiceDetails() {
 
   const fetchServiceById = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/service/${id}`)
+      const response = await fetch(`https://argus.appweb.space/api/service/${id}`)
       if (!response.ok) throw new Error('Ошибка загрузки сервиса')
       const data = await response.json()
       setService(data)
@@ -27,7 +27,7 @@ function ServiceDetails() {
   // Обработка Healthcheck, ответ ожидается как строка
   const handleHealthcheck = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/healthcheck/${id}`)
+      const response = await fetch(`https://argus.appweb.space/api/healthcheck/${id}`)
       if (!response.ok) throw new Error('Ошибка Healthcheck')
       // Получаем ответ в виде текста
       const text = await response.text()
@@ -84,7 +84,7 @@ function ServiceDetails() {
       </Dialog>
 
       {/* Кнопка "Назад" */}
-      <Box sx={{ textAlign: 'center', mt: 3 }}>
+      <Box sx={{ position: 'absolute', top: 80, left: 260 }}>
         <Button variant="contained" onClick={() => navigate(-1)}>
           Назад
         </Button>

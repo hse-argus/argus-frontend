@@ -1,18 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Container,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Box
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Paper, Button, Container, Dialog, DialogTitle, DialogContent,
+  DialogActions, TextField, Box, Tooltip
 } from '@mui/material'
 
 function Home() {
@@ -23,18 +14,14 @@ function Home() {
   const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
-  // Поля формы добавления
+  // Поля формы
   const [addName, setAddName] = useState('')
   const [addPort, setAddPort] = useState('')
   const [addAddress, setAddAddress] = useState('')
-
-  // Поля формы обновления
   const [updateId, setUpdateId] = useState('')
   const [updateName, setUpdateName] = useState('')
   const [updatePort, setUpdatePort] = useState('')
   const [updateAddress, setUpdateAddress] = useState('')
-
-  // Поля формы удаления
   const [deleteId, setDeleteId] = useState('')
 
   const navigate = useNavigate()
@@ -42,7 +29,6 @@ function Home() {
   // Загружаем список сервисов
   const fetchServices = async () => {
     try {
-      // Меняем адрес на https://argus.appweb.space/api
       const response = await fetch('https://argus.appweb.space/api/all-services')
       if (!response.ok) throw new Error('Ошибка загрузки данных')
       const data = await response.json()
@@ -126,66 +112,61 @@ function Home() {
     }
   }
 
+  // При клике на строку таблицы → переход к деталям
+  const handleRowClick = (serviceId) => {
+    navigate(`/service/${serviceId}`)
+  }
+
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        backgroundColor: '#121212',
-        color: '#fff',
-        pt: 4
-      }}
-    >
+    <Box sx={{ minHeight: '100vh', pt: 2 }}>
       <Container>
-        <Typography variant="h4" align="center" gutterBottom>
-          Список сервисов
-        </Typography>
+        <h1 style={{ textAlign: 'center' }}>Список сервисов</h1>
 
-        {/* Сетка карточек */}
-        <Grid container spacing={2} sx={{ mb: 4 }}>
-          {services.length ? (
-            services.map((service) => (
-              <Grid item xs={12} sm={6} md={4} key={service.id}>
-                <Card
-                  sx={{
-                    cursor: 'pointer',
-                    backgroundColor: 'transparent',
-                    border: 'none',
-                    boxShadow: 'none'
-                  }}
-                  onClick={() => navigate(`/service/${service.id}`)}
-                >
-                  <CardContent
+        {/* Таблица */}
+        <TableContainer component={Paper} sx={{ backgroundColor: '#1e1e1e', color: '#fff' }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ color: '#fff' }}>ID</TableCell>
+                <TableCell sx={{ color: '#fff' }}>Name</TableCell>
+                <TableCell sx={{ color: '#fff' }}>Port</TableCell>
+                <TableCell sx={{ color: '#fff' }}>Address</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {services.length ? (
+                services.map((service) => (
+                  <TableRow
+                    key={service.id}
+                    hover
+                    // При наведении будет эффект подсветки (hover включен по default в MUI, но можно усилить стилями)
                     sx={{
-                      backgroundColor: 'transparent',
-                      p: 0,
-                      textAlign: 'center' // Центрируем текст
+                      cursor: 'pointer',
+                      '&:hover': {
+                        backgroundColor: '#2a2a2a' // немного светлее при hover
+                      }
                     }}
+                    onClick={() => handleRowClick(service.id)}
                   >
-                    <Typography variant="h6" gutterBottom>
-                      {service.name}
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>ID:</strong> {service.id}
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>Port:</strong> {service.port}
-                    </Typography>
-                    <Typography variant="body2">
-                      <strong>Address:</strong> {service.address}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))
-          ) : (
-            <Typography variant="body1" align="center" sx={{ width: '100%' }}>
-              Нет доступных сервисов
-            </Typography>
-          )}
-        </Grid>
+                    <TableCell sx={{ color: '#fff' }}>{service.id}</TableCell>
+                    <TableCell sx={{ color: '#fff' }}>{service.name}</TableCell>
+                    <TableCell sx={{ color: '#fff' }}>{service.port}</TableCell>
+                    <TableCell sx={{ color: '#fff' }}>{service.address}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} sx={{ color: '#fff', textAlign: 'center' }}>
+                    Нет доступных сервисов
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-        {/* Кнопки управления */}
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
+        {/* Кнопки CRUD, центрируем */}
+        <Box sx={{ textAlign: 'center', mt: 2 }}>
           <Button variant="contained" color="primary" sx={{ mx: 1 }} onClick={() => setShowAddModal(true)}>
             Добавить сервис
           </Button>
