@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Container, Typography, Paper, Box, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material'
+import {
+  Container,
+  Typography,
+  Paper,
+  Box,
+  Button,
+  Snackbar,
+  Alert
+} from '@mui/material'
 
 function ServiceDetails() {
   const { id } = useParams()
   const [service, setService] = useState(null)
-  const [healthStatus, setHealthStatus] = useState('')
-  const [openHealthModal, setOpenHealthModal] = useState(false)
+  // Состояния для уведомления Snackbar
+  const [snackbarOpen, setSnackbarOpen] = useState(false)
+  const [snackbarMessage, setSnackbarMessage] = useState('')
   const navigate = useNavigate()
 
   const fetchServiceById = async () => {
@@ -29,13 +38,18 @@ function ServiceDetails() {
     try {
       const response = await fetch(`https://argus.appweb.space/api/healthcheck/${id}`)
       if (!response.ok) throw new Error('Ошибка Healthcheck')
-      // Получаем ответ в виде текста
       const text = await response.text()
-      setHealthStatus(text)
-      setOpenHealthModal(true)
+      setSnackbarMessage(`Healthcheck сервиса ${id}: ${text}`)
+      setSnackbarOpen(true)
     } catch (error) {
-      alert(error.message)
+      setSnackbarMessage(`Ошибка: ${error.message}`)
+      setSnackbarOpen(true)
     }
+  }
+
+  const handleCloseSnackbar = (event, reason) => {
+    if (reason === 'clickaway') return
+    setSnackbarOpen(false)
   }
 
   if (!service) {
@@ -71,26 +85,13 @@ function ServiceDetails() {
           sx={{
             backgroundColor: '#17a2b8',
             ':hover': {
-              backgroundColor: '#138496' // более тёмный оттенок для hover
+              backgroundColor: '#138496'
             }
           }}
         >
           Healthcheck
         </Button>
       </Box>
-
-      {/* Модальное окно для вывода ответа Healthcheck */}
-      <Dialog open={openHealthModal} onClose={() => setOpenHealthModal(false)}>
-        <DialogTitle>Healthcheck сервиса {id}</DialogTitle>
-        <DialogContent>
-          <Typography variant="body1">
-            {healthStatus}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenHealthModal(false)}>Закрыть</Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Кнопка "Назад" */}
       <Box sx={{ position: 'absolute', top: 80, left: 260 }}>
@@ -108,6 +109,18 @@ function ServiceDetails() {
           Назад
         </Button>
       </Box>
+
+      {/* Уведомление Snackbar */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity="info" sx={{ width: '100%' }}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Container>
   )
 }
