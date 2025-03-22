@@ -14,7 +14,6 @@ function App() {
           <Route path="/service/:id" element={<ServiceDetails />} />
         </Route>
       </Routes>
-      {/* Компонент для уведомлений */}
     </>
   );
 }
