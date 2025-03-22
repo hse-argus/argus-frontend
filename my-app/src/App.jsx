@@ -3,7 +3,6 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from './Layout';
 import Home from './Home';
 import ServiceDetails from './ServiceDetails';
-import WebSocketNotifier from './WebSocketNotifier'; // Импорт нового компонента
 
 function App() {
   return (
@@ -16,7 +15,6 @@ function App() {
         </Route>
       </Routes>
       {/* Компонент для уведомлений */}
-      <WebSocketNotifier />
     </>
   );
 }
