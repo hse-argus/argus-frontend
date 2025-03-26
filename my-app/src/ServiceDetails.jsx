@@ -7,7 +7,15 @@ import {
   Box,
   Button,
   Snackbar,
-  Alert
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
 } from '@mui/material'
 
 function ServiceDetails() {
@@ -47,6 +55,29 @@ function ServiceDetails() {
     }
   }
 
+  // Состояния для модального окна расписания
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
+  const [selectedTime, setSelectedTime] = useState('5m')
+
+  // Отправка запроса для сохранения расписания
+  const handleScheduleSubmit = async () => {
+    try {
+      const response = await fetch(`https://argus.appweb.space/api/service/${id}/schedule`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ time: selectedTime })
+      })
+      if (!response.ok) throw new Error('Ошибка сохранения расписания')
+      setSnackbarMessage('Расписание сохранено')
+      setSnackbarOpen(true)
+    } catch (error) {
+      setSnackbarMessage(`Ошибка: ${error.message}`)
+      setSnackbarOpen(true)
+    } finally {
+      setScheduleModalOpen(false)
+    }
+  }
+
   const handleCloseSnackbar = (event, reason) => {
     if (reason === 'clickaway') return
     setSnackbarOpen(false)
@@ -77,7 +108,7 @@ function ServiceDetails() {
         <Typography variant="body1"><strong>Address:</strong> {service.address}</Typography>
       </Paper>
 
-      {/* Кнопка Healthcheck */}
+      {/* Кнопки действий */}
       <Box sx={{ textAlign: 'center', mt: 3 }}>
         <Button
           variant="contained"
@@ -90,6 +121,19 @@ function ServiceDetails() {
           }}
         >
           Healthcheck
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => setScheduleModalOpen(true)}
+          sx={{
+            backgroundColor: '#28a745',
+            ':hover': {
+              backgroundColor: '#218838'
+            },
+            ml: 2
+          }}
+        >
+          Добавить расписание
         </Button>
       </Box>
 
@@ -109,6 +153,34 @@ function ServiceDetails() {
           Назад
         </Button>
       </Box>
+
+      {/* Модальное окно для выбора расписания */}
+      <Dialog open={scheduleModalOpen} onClose={() => setScheduleModalOpen(false)}>
+        <DialogTitle>Выберите расписание</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth sx={{ mt: 2 }}>
+            <InputLabel id="schedule-select-label">Время</InputLabel>
+            <Select
+              labelId="schedule-select-label"
+              value={selectedTime}
+              label="Время"
+              onChange={(e) => setSelectedTime(e.target.value)}
+            >
+              <MenuItem value="5m">5 минут</MenuItem>
+              <MenuItem value="15m">15 минут</MenuItem>
+              <MenuItem value="1h">1 час</MenuItem>
+              <MenuItem value="4h">4 часа</MenuItem>
+              <MenuItem value="8h">8 часов</MenuItem>
+              <MenuItem value="12h">12 часов</MenuItem>
+              <MenuItem value="24h">24 часа</MenuItem>
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setScheduleModalOpen(false)}>Отмена</Button>
+          <Button onClick={handleScheduleSubmit}>Сохранить</Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Уведомление Snackbar */}
       <Snackbar
