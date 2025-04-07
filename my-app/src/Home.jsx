@@ -29,7 +29,7 @@ function Home() {
   // Загружаем список сервисов
   const fetchServices = async () => {
     try {
-      const response = await fetch('https://argus.appweb.space/api/all-services')
+      const response = await fetch('https://argus.appweb.space/api/service')
       if (!response.ok) throw new Error('Ошибка загрузки данных')
       const data = await response.json()
       setServices(data)
@@ -50,7 +50,7 @@ function Home() {
     }
     try {
       const port = parseInt(addPort, 10)
-      const response = await fetch('https://argus.appweb.space/api/add-service', {
+      const response = await fetch('https://argus.appweb.space/api/service', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: addName, port, address: addAddress })
@@ -75,7 +75,7 @@ function Home() {
     try {
       const id = parseInt(updateId, 10)
       const port = parseInt(updatePort, 10)
-      const response = await fetch('https://argus.appweb.space/api/update-service', {
+      const response = await fetch('https://argus.appweb.space/api/service', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, name: updateName, port, address: updateAddress })
@@ -100,7 +100,7 @@ function Home() {
     }
     try {
       const id = parseInt(deleteId, 10)
-      const url = new URL('https://argus.appweb.space/api/delete-service')
+      const url = new URL('https://argus.appweb.space/api/service')
       url.searchParams.append('id', id)
       const response = await fetch(url, { method: 'DELETE' })
       if (!response.ok) throw new Error('Ошибка удаления')

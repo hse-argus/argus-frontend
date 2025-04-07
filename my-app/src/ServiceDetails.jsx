@@ -44,7 +44,9 @@ function ServiceDetails() {
   // Обработка Healthcheck, ответ ожидается как строка
   const handleHealthcheck = async () => {
     try {
-      const response = await fetch(`https://argus.appweb.space/api/healthcheck/${id}`)
+      const response = await fetch(`https://argus.appweb.space/api/healthcheck/${id}`, {
+        method: 'POST'
+      })
       if (!response.ok) throw new Error('Ошибка Healthcheck')
       const text = await response.text()
       setSnackbarMessage(`Healthcheck сервиса ${id}: ${text}`)
@@ -62,7 +64,7 @@ function ServiceDetails() {
   // Отправка запроса для сохранения расписания
   const handleScheduleSubmit = async () => {
     try {
-      const response = await fetch(`https://argus.appweb.space/api/service/${id}/schedule`, {
+      const response = await fetch(`https://argus.appweb.space/api/scheduled-healthcheck/${id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ time: selectedTime })
