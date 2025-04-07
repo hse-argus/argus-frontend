@@ -45,7 +45,7 @@ function Layout() {
               style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 16 }}
             />
             <Typography variant="h6" noWrap component="div">
-              Argus Dashboard
+              Argus
             </Typography>
           </Link>
         </Toolbar>
