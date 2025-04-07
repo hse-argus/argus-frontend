@@ -17,6 +17,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard'
 import ListIcon from '@mui/icons-material/List'
 import SettingsIcon from '@mui/icons-material/Settings'
 import logo from './assets/logo.jpg'
+import WebSocketNotifier from './WebSocketNotifier'
 
 const drawerWidth = 240
 
@@ -111,6 +112,8 @@ function Layout() {
       <Box component="main" sx={{ flexGrow: 1, p: 3, ml: `${drawerWidth}px` }}>
         <Toolbar />
         <Outlet />
+        {/* Добавляем компонент для уведомлений по WebSocket */}
+        <WebSocketNotifier />
       </Box>
     </Box>
   )
