@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, Container, Dialog, DialogTitle, DialogContent,
-  DialogActions, TextField, Box, Tooltip
+  DialogActions, TextField, Box
 } from '@mui/material'
 
 function Home() {
@@ -14,14 +14,16 @@ function Home() {
   const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
-  // Поля формы
+  // Поля формы для добавления
   const [addName, setAddName] = useState('')
   const [addPort, setAddPort] = useState('')
   const [addAddress, setAddAddress] = useState('')
+  // Поля формы для обновления
   const [updateId, setUpdateId] = useState('')
   const [updateName, setUpdateName] = useState('')
   const [updatePort, setUpdatePort] = useState('')
   const [updateAddress, setUpdateAddress] = useState('')
+  // Поле для удаления
   const [deleteId, setDeleteId] = useState('')
 
   const navigate = useNavigate()
@@ -112,74 +114,125 @@ function Home() {
     }
   }
 
-  // При клике на строку таблицы → переход к деталям
+  // Переход к деталям при клике
   const handleRowClick = (serviceId) => {
     navigate(`/service/${serviceId}`)
   }
 
   return (
     <Box sx={{ minHeight: '100vh', pt: 2 }}>
-      <Container>
+      {/*
+        disableGutters + maxWidth={false} → убираем любые отступы и ограничения
+        по ширине контейнера, чтобы занять всю доступную ширину контентной области.
+      */}
+      <Container disableGutters maxWidth={false}>
         <h1 style={{ textAlign: 'center' }}>Список сервисов</h1>
 
-        {/* Таблица */}
-        <TableContainer component={Paper} sx={{ backgroundColor: '#1e1e1e', color: '#fff' }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ color: '#fff' }}>ID</TableCell>
-                <TableCell sx={{ color: '#fff' }}>Name</TableCell>
-                <TableCell sx={{ color: '#fff' }}>Port</TableCell>
-                <TableCell sx={{ color: '#fff' }}>Address</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {services.length ? (
-                services.map((service) => (
-                  <TableRow
-                    key={service.id}
-                    hover
-                    sx={{
-                      cursor: 'pointer',
-                      transition: 'background-color 0.2s, border 0.2s',
-                      '&:hover': {
-                        backgroundColor: '#2a2a2a',
-                        border: '1px solid #646cff'
-                      }
-                    }}
-                    onClick={() => handleRowClick(service.id)}
-                  >
-                    <TableCell sx={{ color: '#fff' }}>{service.id}</TableCell>
-                    <TableCell sx={{ color: '#fff' }}>{service.name}</TableCell>
-                    <TableCell sx={{ color: '#fff' }}>{service.port}</TableCell>
-                    <TableCell sx={{ color: '#fff' }}>{service.address}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} sx={{ color: '#fff', textAlign: 'center' }}>
-                    Нет доступных сервисов
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', width: '100%' }}>
+          {/* Колонка кнопок слева (фикс. ширина) */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              width: '200px',
+              flexShrink: 0
+            }}
+          >
+            <Button
+              variant="contained"
+              onClick={() => setShowAddModal(true)}
+              sx={{
+                backgroundColor: '#4a5ea8',
+                padding: '1em 1.5em',
+                fontSize: '1.1em'
+              }}
+            >
+              Добавить сервис
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => setShowUpdateModal(true)}
+              sx={{
+                backgroundColor: '#1e8c7a',
+                padding: '1em 1.5em',
+                fontSize: '1.1em'
+              }}
+            >
+              Обновить сервис
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => setShowDeleteModal(true)}
+              sx={{
+                backgroundColor: '#c82333',
+                padding: '1em 1.5em',
+                fontSize: '1.1em'
+              }}
+            >
+              Удалить сервис
+            </Button>
+          </Box>
 
-        {/* Кнопки CRUD, центрируем */}
-        <Box sx={{ textAlign: 'center', mt: 2 }}>
-          <Button variant="contained" color="primary" sx={{ mx: 1 }} onClick={() => setShowAddModal(true)}>
-            Добавить сервис
-          </Button>
-          <Button variant="contained" color="secondary" sx={{ mx: 1 }} onClick={() => setShowUpdateModal(true)}>
-            Обновить сервис
-          </Button>
-          <Button variant="contained" color="error" sx={{ mx: 1 }} onClick={() => setShowDeleteModal(true)}>
-            Удалить сервис
-          </Button>
+          {/* 
+            Блок с таблицей, занимающий оставшуюся ширину.
+            overflowX: 'auto' → если экран слишком узкий, появляется горизонтальная прокрутка.
+          */}
+          <Box sx={{ flexGrow: 1, overflowX: 'auto' }}>
+            <TableContainer
+              component={Paper}
+              sx={{
+                backgroundColor: '#1e1e1e',
+                color: '#fff',
+                width: '100%',
+                minWidth: '750px' // <-- МИНИМАЛЬНАЯ ШИРИНА ТАБЛИЦЫ, подгонять нужное значение
+              }}
+            >
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ color: '#fff' }}>ID</TableCell>
+                    <TableCell sx={{ color: '#fff' }}>Name</TableCell>
+                    <TableCell sx={{ color: '#fff' }}>Port</TableCell>
+                    <TableCell sx={{ color: '#fff' }}>Address</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {services.length ? (
+                    services.map((service) => (
+                      <TableRow
+                        key={service.id}
+                        hover
+                        sx={{
+                          cursor: 'pointer',
+                          transition: 'background-color 0.2s, border 0.2s',
+                          '&:hover': {
+                            backgroundColor: '#2a2a2a',
+                            border: '1px solid #646cff'
+                          }
+                        }}
+                        onClick={() => handleRowClick(service.id)}
+                      >
+                        <TableCell sx={{ color: '#fff' }}>{service.id}</TableCell>
+                        <TableCell sx={{ color: '#fff' }}>{service.name}</TableCell>
+                        <TableCell sx={{ color: '#fff' }}>{service.port}</TableCell>
+                        <TableCell sx={{ color: '#fff' }}>{service.address}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} sx={{ color: '#fff', textAlign: 'center' }}>
+                        Нет доступных сервисов
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
         </Box>
 
-        {/* Модальное окно для добавления */}
+        {/* Модальные окна */}
         <Dialog open={showAddModal} onClose={() => setShowAddModal(false)}>
           <DialogTitle>Добавить сервис</DialogTitle>
           <DialogContent>
@@ -213,7 +266,6 @@ function Home() {
           </DialogActions>
         </Dialog>
 
-        {/* Модальное окно для обновления */}
         <Dialog open={showUpdateModal} onClose={() => setShowUpdateModal(false)}>
           <DialogTitle>Обновить сервис</DialogTitle>
           <DialogContent>
@@ -255,7 +307,6 @@ function Home() {
           </DialogActions>
         </Dialog>
 
-        {/* Модальное окно для удаления */}
         <Dialog open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
           <DialogTitle>Удалить сервис</DialogTitle>
           <DialogContent>
