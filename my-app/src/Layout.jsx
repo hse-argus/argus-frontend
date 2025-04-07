@@ -24,7 +24,7 @@ const drawerWidth = 240
 function Layout() {
   const location = useLocation()
 
-  // Теперь Services и Settings — IN PROGRESS
+  // Определяем элементы меню
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/', inProgress: false },
     { text: 'Services', icon: <ListIcon />, path: '/services', inProgress: true },
@@ -38,12 +38,16 @@ function Layout() {
       {/* Верхняя панель */}
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
-          <Link to="/" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+          <Link
+            to="/"
+            style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}
+          >
             <img
               src={logo}
               alt="Logo"
               style={{ width: 40, height: 40, borderRadius: '50%', marginRight: 16 }}
             />
+            {/* Переименовали текст */}
             <Typography variant="h6" noWrap component="div">
               Argus
             </Typography>
@@ -64,7 +68,6 @@ function Layout() {
         <Box sx={{ overflow: 'auto' }}>
           <List>
             {menuItems.map((item) => {
-              // Собираем <ListItem> (может быть обёрнут в Tooltip, если inProgress)
               const listItem = (
                 <ListItem
                   button
@@ -72,19 +75,18 @@ function Layout() {
                   component={item.inProgress ? 'div' : Link}
                   to={item.inProgress ? undefined : item.path}
                   disabled={item.inProgress}
-                  // Подсветка активной вкладки
                   selected={location.pathname === item.path}
                   sx={{
                     transition: 'background-color 0.2s, color 0.2s',
-                    // Hover-эффект: затемнение, если не IN PROGRESS
+                    // Если inProgress, делаем элемент более блеклым
+                    opacity: item.inProgress ? 0.5 : 1,
                     '&:hover': {
                       backgroundColor: item.inProgress ? 'inherit' : '#333'
                     },
-                    // Стили для активной вкладки
                     ...(location.pathname === item.path && {
                       backgroundColor: '#555',
                       '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
-                        color: '#9c27b0' // фиолетовый цвет текста и иконки
+                        color: '#9c27b0'
                       }
                     })
                   }}
@@ -94,10 +96,9 @@ function Layout() {
                 </ListItem>
               )
 
-              // Если вкладка IN PROGRESS, оборачиваем в Tooltip
+              // Если элемент inProgress, оборачиваем его в Tooltip с placement="right"
               return item.inProgress ? (
-                <Tooltip title="фича в разработке" key={item.text}>
-                  {/* <span> нужен, чтобы Tooltip корректно работал с disabled-элементом */}
+                <Tooltip title="фича в разработке" key={item.text} placement="right">
                   <span>{listItem}</span>
                 </Tooltip>
               ) : (
@@ -112,7 +113,6 @@ function Layout() {
       <Box component="main" sx={{ flexGrow: 1, p: 3, ml: `${drawerWidth}px` }}>
         <Toolbar />
         <Outlet />
-        {/* Добавляем компонент для уведомлений по WebSocket */}
         <WebSocketNotifier />
       </Box>
     </Box>

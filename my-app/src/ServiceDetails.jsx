@@ -43,18 +43,16 @@ function ServiceDetails() {
     fetchServiceById()
   }, [id])
 
-  // Healthcheck
+  // Healthcheck: уведомление теперь приходит по WebSocket, но в случае ошибки выводим уведомление вручную
   const handleHealthcheck = async () => {
     try {
       const response = await fetch(`https://argus.appweb.space/api/healthcheck/${id}`, {
         method: 'POST'
       })
       if (!response.ok) throw new Error('Ошибка Healthcheck')
-      const text = await response.text()
-      const displayText = text || `Код ответа: ${response.status}`
-      setSnackbarMessage(`Healthcheck сервиса ${id}: ${displayText}`)
-      setSnackbarOpen(true)
+      // Успешный вызов – уведомление придёт через WebSocketNotifier
     } catch (error) {
+      console.error('Ошибка при выполнении Healthcheck:', error)
       setSnackbarMessage(`Ошибка: ${error.message}`)
       setSnackbarOpen(true)
     }
@@ -64,6 +62,7 @@ function ServiceDetails() {
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
   const [selectedTime, setSelectedTime] = useState('5m')
 
+  // Настройка расписания: уведомление придёт по WebSocket
   const handleScheduleSubmit = async () => {
     try {
       const response = await fetch(`https://argus.appweb.space/api/scheduled-healthcheck/${id}`, {
@@ -72,11 +71,9 @@ function ServiceDetails() {
         body: JSON.stringify({ time: selectedTime })
       })
       if (!response.ok) throw new Error('Ошибка сохранения расписания')
-      setSnackbarMessage('Расписание сохранено')
-      setSnackbarOpen(true)
+      // Успешное сохранение – уведомление придёт через WebSocketNotifier
     } catch (error) {
-      setSnackbarMessage(`Ошибка: ${error.message}`)
-      setSnackbarOpen(true)
+      console.error('Ошибка при настройке расписания:', error)
     } finally {
       setScheduleModalOpen(false)
     }
@@ -87,7 +84,7 @@ function ServiceDetails() {
     setSnackbarOpen(false)
   }
 
-  // Новые кнопки: Обновление и удаление
+  // Модальные окна для обновления и удаления
   const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
 
@@ -178,11 +175,10 @@ function ServiceDetails() {
       <Box
         sx={{
           display: 'flex',
-          flexWrap: 'wrap',    // позволяет перенос на новую строку
-          gap: 2,              // расстояние между кнопками
-          justifyContent: 'center', // по центру (можно 'flex-start', если хотите слева)
+          flexWrap: 'wrap',
+          gap: 2,
+          justifyContent: 'center',
           mt: 3,
-          // Можно добавить немного отступов сверху/снизу, если надо
         }}
       >
         <Button
@@ -230,7 +226,6 @@ function ServiceDetails() {
         </Button>
       </Box>
 
-      {/* Кнопка "Назад", как в исходном коде (абсолютное позиционирование) */}
       <Box sx={{ position: 'absolute', top: 80, left: 260 }}>
         <Button
           variant="contained"
@@ -308,7 +303,7 @@ function ServiceDetails() {
         </DialogActions>
       </Dialog>
 
-      {/* Модальное окно для удаления (подтверждение) */}
+      {/* Модальное окно для удаления */}
       <Dialog open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
         <DialogTitle>Удалить сервис</DialogTitle>
         <DialogContent>
@@ -322,7 +317,7 @@ function ServiceDetails() {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar */}
+      {/* Snackbar для ручных уведомлений (оставлен для других операций, если необходимо) */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
