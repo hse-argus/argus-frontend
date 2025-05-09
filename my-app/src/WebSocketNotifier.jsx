@@ -1,3 +1,4 @@
+// WebSocketNotifier.jsx
 import React, { useState, useEffect } from 'react';
 import { Snackbar, Alert } from '@mui/material';
 
@@ -6,7 +7,14 @@ const WebSocketNotifier = () => {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    const socket = new WebSocket('wss://argus.appweb.space/api/ws');
+    // Получаем токен из localStorage
+    const token = localStorage.getItem('token');
+    // Формируем URL с query-параметром token
+    const wsUrl = token
+      ? `wss://argus.appweb.space/api/ws?token=${encodeURIComponent(token)}`
+      : 'wss://argus.appweb.space/api/ws';
+
+    const socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
       console.log('Подключение к WebSocket установлено');
@@ -26,7 +34,6 @@ const WebSocketNotifier = () => {
       console.log('Соединение WebSocket закрыто');
     };
 
-    // Очистка соединения при размонтировании компонента
     return () => {
       socket.close();
     };
@@ -42,7 +49,7 @@ const WebSocketNotifier = () => {
       open={open}
       autoHideDuration={6000}
       onClose={handleClose}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}  // ← Вывод в правом верхнем углу
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
     >
       <Alert onClose={handleClose} severity="info" sx={{ width: '100%' }}>
         {message}

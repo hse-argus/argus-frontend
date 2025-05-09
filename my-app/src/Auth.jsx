@@ -1,3 +1,4 @@
+// Auth.jsx
 import React, { useState } from 'react';
 import { Container, TextField, Button, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +12,7 @@ function Auth() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+    const endpoint = isLogin ? '/api/login' : '/api/register';
     const body = isLogin ? { login, password } : { email, login, password };
 
     try {
