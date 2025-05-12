@@ -20,49 +20,41 @@ import {
   TextField
 } from '@mui/material'
 import { authFetch } from './api'
- 
+
 function ServiceDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
- 
+
   const [service, setService] = useState(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [snackbarMessage, setSnackbarMessage] = useState('')
- 
-  // Загрузка сервиса
-  const fetchServiceById = async () => {
-    try {
-      const response = await authFetch(`https://argus.appweb.space/api/service/${id}`)
-      if (!response.ok) throw new Error('Ошибка загрузки сервиса')
-      const data = await response.json()
-      setService(data)
-    } catch (error) {
-      console.error(error)
-    }
-  }
- 
+
   useEffect(() => {
+    const fetchServiceById = async () => {
+      try {
+        const response = await authFetch(`https://argus.appweb.space/api/service/${id}`)
+        if (!response.ok) throw new Error('Ошибка загрузки сервиса')
+        setService(await response.json())
+      } catch (error) {
+        console.error(error)
+      }
+    }
     fetchServiceById()
   }, [id])
- 
-  // Healthcheck
+
   const handleHealthcheck = async () => {
     try {
-      const response = await authFetch(`https://argus.appweb.space/api/healthcheck/${id}`, {
-        method: 'POST'
-      })
+      const response = await authFetch(`https://argus.appweb.space/api/healthcheck/${id}`, { method: 'POST' })
       if (!response.ok) throw new Error('Ошибка Healthcheck')
     } catch (error) {
-      console.error('Ошибка при выполнении Healthcheck:', error)
       setSnackbarMessage(`Ошибка: ${error.message}`)
       setSnackbarOpen(true)
     }
   }
- 
-  // Добавление расписания
+
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
   const [selectedTime, setSelectedTime] = useState('5m')
- 
+
   const handleScheduleSubmit = async () => {
     try {
       const response = await authFetch(`https://argus.appweb.space/api/scheduled-healthcheck/${id}`, {
@@ -72,43 +64,37 @@ function ServiceDetails() {
       })
       if (!response.ok) throw new Error('Ошибка сохранения расписания')
     } catch (error) {
-      console.error('Ошибка при настройке расписания:', error)
       setSnackbarMessage(`Ошибка: ${error.message}`)
       setSnackbarOpen(true)
     } finally {
       setScheduleModalOpen(false)
     }
   }
- 
-  // Удаление расписания
+
   const handleScheduleDelete = async () => {
     if (!window.confirm('Вы уверены, что хотите удалить расписание?')) return
     try {
-      const response = await authFetch(`https://argus.appweb.space/api/schedule/${id}`, {
-        method: 'DELETE'
-      })
+      const response = await authFetch(`https://argus.appweb.space/api/schedule/${id}`, { method: 'DELETE' })
       if (!response.ok) throw new Error('Ошибка удаления расписания')
       setSnackbarMessage('Расписание удалено')
       setSnackbarOpen(true)
     } catch (error) {
-      console.error('Ошибка при удалении расписания:', error)
       setSnackbarMessage(`Ошибка: ${error.message}`)
       setSnackbarOpen(true)
     }
   }
- 
-  const handleCloseSnackbar = (event, reason) => {
+
+  const handleCloseSnackbar = (_, reason) => {
     if (reason === 'clickaway') return
     setSnackbarOpen(false)
   }
- 
-  // Модалки обновления/удаления сервиса
+
   const [showUpdateModal, setShowUpdateModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [updateName, setUpdateName] = useState('')
   const [updatePort, setUpdatePort] = useState('')
   const [updateAddress, setUpdateAddress] = useState('')
- 
+
   useEffect(() => {
     if (service) {
       setUpdateName(service.name)
@@ -116,21 +102,20 @@ function ServiceDetails() {
       setUpdateAddress(service.address)
     }
   }, [service])
- 
+
   const handleUpdateSubmit = async () => {
     if (!updateName || !updatePort || !updateAddress) {
       alert('Заполните все поля')
       return
     }
     try {
-      const port = parseInt(updatePort, 10)
       const response = await authFetch('https://argus.appweb.space/api/service', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: service.id,
           name: updateName,
-          port,
+          port: parseInt(updatePort, 10),
           address: updateAddress
         })
       })
@@ -138,13 +123,12 @@ function ServiceDetails() {
       setSnackbarMessage('Сервис обновлён')
       setSnackbarOpen(true)
       setShowUpdateModal(false)
-      fetchServiceById()
     } catch (error) {
       setSnackbarMessage(`Ошибка: ${error.message}`)
       setSnackbarOpen(true)
     }
   }
- 
+
   const handleDeleteSubmit = async () => {
     if (!window.confirm(`Удалить сервис ${service.name}?`)) return
     try {
@@ -160,7 +144,7 @@ function ServiceDetails() {
       setSnackbarOpen(true)
     }
   }
- 
+
   if (!service) {
     return (
       <Container maxWidth="sm">
@@ -170,35 +154,63 @@ function ServiceDetails() {
       </Container>
     )
   }
- 
+
   return (
     <Container maxWidth="sm">
       <Box sx={{ mt: 4, mb: 2 }}>
-        <Typography variant="h4" align="center">
-          Детали сервиса
-        </Typography>
+        <Typography variant="h4" align="center">Детали сервиса</Typography>
       </Box>
- 
+
       <Paper sx={{ p: 2, backgroundColor: '#1e1e1e', color: '#fff' }}>
         <Typography><strong>ID:</strong> {service.id}</Typography>
         <Typography><strong>Name:</strong> {service.name}</Typography>
         <Typography><strong>Port:</strong> {service.port}</Typography>
         <Typography><strong>Address:</strong> {service.address}</Typography>
       </Paper>
- 
-      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center', mt: 3 }}>
-        <Button onClick={handleHealthcheck} variant="contained">Healthcheck</Button>
-        <Button onClick={() => setScheduleModalOpen(true)} variant="contained">Добавить расписание</Button>
-        <Button onClick={handleScheduleDelete} variant="outlined" color="error">
+
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center', mt: 3 }}>
+        <Button
+          variant="contained"
+          onClick={handleHealthcheck}
+          sx={{ backgroundColor: '#17a2b8', ':hover': { backgroundColor: '#138496' } }}
+        >
+          Healthcheck
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={() => setScheduleModalOpen(true)}
+          sx={{ backgroundColor: '#28a745', ':hover': { backgroundColor: '#218838' } }}
+        >
+          Добавить расписание
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={handleScheduleDelete}
+          sx={{ backgroundColor: '#c82333', ':hover': { backgroundColor: '#b51e2e' } }}
+        >
           Удалить расписание
         </Button>
-        <Button onClick={() => setShowUpdateModal(true)} variant="contained">Обновить сервис</Button>
-        <Button onClick={() => setShowDeleteModal(true)} variant="contained" color="error">
+
+        <Button
+          variant="contained"
+          onClick={() => setShowUpdateModal(true)}
+          sx={{ backgroundColor: '#1e8c7a', ':hover': { backgroundColor: '#17705f' } }}
+        >
+          Обновить сервис
+        </Button>
+
+        <Button
+          variant="contained"
+          onClick={() => setShowDeleteModal(true)}
+          sx={{ backgroundColor: '#c82333', ':hover': { backgroundColor: '#b51e2e' } }}
+        >
           Удалить сервис
         </Button>
       </Box>
- 
-      {/* Модалка добавления расписания */}
+
+      {/* Модалка добавления/удаления расписания */}
       <Dialog open={scheduleModalOpen} onClose={() => setScheduleModalOpen(false)}>
         <DialogTitle>Выберите расписание</DialogTitle>
         <DialogContent>
@@ -226,21 +238,21 @@ function ServiceDetails() {
           <Button onClick={handleScheduleSubmit}>Сохранить</Button>
         </DialogActions>
       </Dialog>
- 
-      {/* Модалка обновления */}
+
+      {/* Модалка обновления сервиса */}
       <Dialog open={showUpdateModal} onClose={() => setShowUpdateModal(false)}>
         <DialogTitle>Обновить сервис</DialogTitle>
         <DialogContent>
-          <TextField fullWidth margin="dense" label="Название" value={updateName} onChange={(e) => setUpdateName(e.target.value)} />
-          <TextField fullWidth margin="dense" label="Порт" type="number" value={updatePort} onChange={(e) => setUpdatePort(e.target.value)} />
-          <TextField fullWidth margin="dense" label="Адрес" value={updateAddress} onChange={(e) => setUpdateAddress(e.target.value)} />
+          <TextField fullWidth margin="dense" label="Название" value={updateName} onChange={e => setUpdateName(e.target.value)} />
+          <TextField fullWidth margin="dense" label="Порт" type="number" value={updatePort} onChange={e => setUpdatePort(e.target.value)} />
+          <TextField fullWidth margin="dense" label="Адрес" value={updateAddress} onChange={e => setUpdateAddress(e.target.value)} />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowUpdateModal(false)}>Отмена</Button>
           <Button onClick={handleUpdateSubmit}>Обновить</Button>
         </DialogActions>
       </Dialog>
- 
+
       {/* Модалка удаления сервиса */}
       <Dialog open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
         <DialogTitle>Удалить сервис</DialogTitle>
@@ -252,7 +264,7 @@ function ServiceDetails() {
           <Button onClick={handleDeleteSubmit}>Удалить</Button>
         </DialogActions>
       </Dialog>
- 
+
       <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity="info" sx={{ width: '100%' }}>
           {snackbarMessage}
@@ -261,5 +273,5 @@ function ServiceDetails() {
     </Container>
   )
 }
- 
+
 export default ServiceDetails
